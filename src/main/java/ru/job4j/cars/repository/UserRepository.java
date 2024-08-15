@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import ru.job4j.cars.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,8 @@ public class UserRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
         return user;
     }
@@ -45,6 +48,8 @@ public class UserRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
     }
 
@@ -63,6 +68,8 @@ public class UserRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
     }
 
@@ -72,9 +79,16 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        return sf.openSession()
-                .createQuery("from User order by id", User.class)
-                .list();
+        Session session = sf.openSession();
+        List<User> result = new ArrayList<>();
+        try {
+            result = session.createQuery("from User order by id", User.class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 
     /**
@@ -83,7 +97,16 @@ public class UserRepository {
      * @return пользователь.
      */
     public Optional<User> findById(int userId) {
-        return Optional.ofNullable(sf.openSession().get(User.class, userId));
+        Session session = sf.openSession();
+        Optional<User> result = Optional.empty();
+        try {
+            result = Optional.ofNullable(session.get(User.class, userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 
     /**
@@ -93,10 +116,18 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        return sf.openSession()
-                .createQuery("from User where login like :flogin ", User.class)
-                .setParameter("flogin", "%" + key + "%")
-                .list();
+        Session session = sf.openSession();
+        List<User> result = new ArrayList<>();
+        try {
+            result = session.createQuery("from User where login like :flogin", User.class)
+                    .setParameter("flogin", "%" + key + "%")
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 
     /**
@@ -106,9 +137,17 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        return sf.openSession()
-                        .createQuery("from User where login = :flogin ", User.class)
-                        .setParameter("flogin", login)
-                        .uniqueResultOptional();
+        Session session = sf.openSession();
+        Optional<User> result = Optional.empty();
+        try {
+            result = session.createQuery("from User where login = :flogin", User.class)
+                    .setParameter("flogin", login)
+                    .uniqueResultOptional();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 }
