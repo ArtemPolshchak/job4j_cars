@@ -82,9 +82,10 @@ public class UserRepository {
         Session session = sf.openSession();
         List<User> result = new ArrayList<>();
         try {
+            session.beginTransaction();
             result = session.createQuery("from User order by id", User.class).list();
         } catch (Exception e) {
-            e.printStackTrace();
+            session.getTransaction().rollback();
         } finally {
             session.close();
         }
@@ -100,9 +101,10 @@ public class UserRepository {
         Session session = sf.openSession();
         Optional<User> result = Optional.empty();
         try {
+            session.beginTransaction();
             result = Optional.ofNullable(session.get(User.class, userId));
         } catch (Exception e) {
-            e.printStackTrace();
+            session.getTransaction().rollback();
         } finally {
             session.close();
         }
@@ -119,11 +121,12 @@ public class UserRepository {
         Session session = sf.openSession();
         List<User> result = new ArrayList<>();
         try {
+            session.beginTransaction();
             result = session.createQuery("from User where login like :flogin", User.class)
                     .setParameter("flogin", "%" + key + "%")
                     .list();
         } catch (Exception e) {
-            e.printStackTrace();
+            session.getTransaction().rollback();
         } finally {
             session.close();
         }
@@ -140,11 +143,12 @@ public class UserRepository {
         Session session = sf.openSession();
         Optional<User> result = Optional.empty();
         try {
+            session.beginTransaction();
             result = session.createQuery("from User where login = :flogin", User.class)
                     .setParameter("flogin", login)
                     .uniqueResultOptional();
         } catch (Exception e) {
-            e.printStackTrace();
+            session.getTransaction().rollback();
         } finally {
             session.close();
         }
